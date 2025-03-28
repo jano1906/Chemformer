@@ -122,9 +122,12 @@ class _AbsDataModule(pl.LightningDataModule):
         self.split_perc = split_perc
         self.pin_memory = pin_memory
         self.unified_model = unified_model
-
-        self._num_workers = len(os.sched_getaffinity(0))
-
+        
+        try:
+            self._num_workers = len(os.sched_getaffinity(0))
+        except:
+            self._num_workers = 1
+        
         self.train_dataset = None
         self.val_dataset = None
         self.test_dataset = None

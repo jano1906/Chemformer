@@ -1,2 +1,7 @@
 .pytest_cache
 __pycache__
+.python-version
+uv.lock
+*.egg-info
+outputs
+*.ckpt
