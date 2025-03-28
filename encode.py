@@ -6,6 +6,7 @@ import math
 import torch
 import numpy as np
 import os
+from tqdm import tqdm
 
 def get_parser():
     parser = ArgumentParser()
@@ -28,7 +29,7 @@ def main(args):
     model.eval()
     outputs = []
     with torch.no_grad():
-        for i in range(0, len(data), BATCH_SIZE):
+        for i in tqdm(range(0, len(data), BATCH_SIZE), "Encoding..."):
             data_batch = data[i:i+BATCH_SIZE]
             x, mask = batch_encoder(data_batch)
             batch = {"encoder_input": x, "encoder_pad_mask": mask}

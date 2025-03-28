@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=2.0.3",
     "pysmilesutils",
     "rdkit==2022.9.3",
+    "tqdm>=4.67.1",
 ]
 
 [tool.uv.sources]
