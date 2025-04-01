@@ -18,7 +18,7 @@ class State:
     model: Optional[BARTModel] = None
     batch_size: Optional[int] = None
 
-def setup(model: str, device: str, batch_size: int):
+def setup(model: str, device: str, batch_size: int) -> None:
     tokenizer = ChemformerTokenizer(filename=VOCAB_PATH)
     batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=-1)
     model = BARTModel.load_from_checkpoint(MODEL_PATHS[model], decode_sampler=None, vocabulary_size=len(tokenizer.vocabulary))
@@ -29,6 +29,9 @@ def setup(model: str, device: str, batch_size: int):
     State.batch_size = batch_size
 
 def encode(smiles: List[str]) -> np.ndarray:
+    if any([State.batch_encoder is None, State.model is None, State.batch_size is None]):
+        raise RuntimeError("Service is not setup, call 'setup' before 'encode'.")
+
     outputs = []
     with torch.no_grad():
         for i in tqdm(range(0, len(smiles), State.batch_size), "Encoding..."):
