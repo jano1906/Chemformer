@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from molbart.utils.tokenizers import ChemformerTokenizer
 from molbart.models import BARTModel
 from molbart.data.util import BatchEncoder
