@@ -56,8 +56,8 @@ class BatchEncoder:
             sep_token = self._tokenizer.special_tokens["sep"]
             tokens = [itokens + [sep_token] for itokens in tokens]
             pad_mask = [imasks + [0] for imasks in pad_mask]
-
-        tokens, pad_mask = self._check_seq_len(tokens, pad_mask)
+        if self._max_seq_len >= 0:
+            tokens, pad_mask = self._check_seq_len(tokens, pad_mask)
         id_data = self._tokenizer.convert_tokens_to_ids(tokens)
         id_tensor = torch.stack(id_data).transpose(0, 1)
         mask_tensor = torch.tensor(pad_mask, dtype=torch.bool).transpose(0, 1)
