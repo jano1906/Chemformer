@@ -12,20 +12,34 @@ MODEL_PATHS = {
     "chemformer": os.path.join(os.path.dirname(__file__), "chemformer.ckpt"),
     "chemformer_large": os.path.join(os.path.dirname(__file__), "chemformer_large.ckpt"),
 }
+CHECKPOINT_DOWNLOAD_LINKS = {
+    "chemformer": "https://az.app.box.com/s/7eci3nd9vy0xplqniitpk02rbg9q2zcq/folder/144881804954",
+    "chemformer_large": "https://az.app.box.com/s/7eci3nd9vy0xplqniitpk02rbg9q2zcq/folder/144881806154",
+}
 
 class State:
     batch_encoder: Optional[BatchEncoder] = None
     model: Optional[BARTModel] = None
+
+    model_name: Optional[str] = None
+    device: Optional[str] = None
     batch_size: Optional[int] = None
 
-def setup(model: str, device: str, batch_size: int) -> None:
+    initialized: bool = False
+
+def setup(model_name: str, device: str, batch_size: int) -> None:
     tokenizer = ChemformerTokenizer(filename=VOCAB_PATH)
     batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=-1)
-    model = BARTModel.load_from_checkpoint(MODEL_PATHS[model], decode_sampler=None, vocabulary_size=len(tokenizer.vocabulary))
+    if not os.path.isfile(MODEL_PATHS[model_name]):
+        raise RuntimeError(f"Download checkpoint '{CHECKPOINT_DOWNLOAD_LINKS[model_name]}' and save it as '{MODEL_PATHS[model_name]}'.")
+    
+    model = BARTModel.load_from_checkpoint(MODEL_PATHS[model_name], decode_sampler=None, vocabulary_size=len(tokenizer.vocabulary))
     model = model.to(device)
     model.eval()
     State.batch_encoder = batch_encoder
     State.model = model
+    State.model_name = model_name
+    State.device = device
     State.batch_size = batch_size
 
 def encode(smiles: List[str]) -> np.ndarray:
@@ -34,7 +48,7 @@ def encode(smiles: List[str]) -> np.ndarray:
 
     outputs = []
     with torch.no_grad():
-        for i in tqdm(range(0, len(smiles), State.batch_size), "Encoding..."):
+        for i in tqdm(range(0, len(smiles), State.batch_size), f"Encoding with {State.model_name}"):
             smiles_batch = smiles[i:i+State.batch_size]
             x, mask = State.batch_encoder(smiles_batch)
             batch = {"encoder_input": x, "encoder_pad_mask": mask}
