@@ -41,9 +41,10 @@ def setup(model_name: str, device: str, batch_size: int) -> None:
     State.model_name = model_name
     State.device = device
     State.batch_size = batch_size
+    State.initialized = True
 
 def encode(smiles: List[str]) -> np.ndarray:
-    if any([State.batch_encoder is None, State.model is None, State.batch_size is None]):
+    if not State.initialized:
         raise RuntimeError("Service is not setup, call 'setup' before 'encode'.")
 
     outputs = []
