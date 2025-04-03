@@ -8,10 +8,10 @@ from tqdm import tqdm
 from typing import Optional, List
 
 VOCAB_PATH = os.path.join(os.path.dirname(__file__), "bart_vocab.json")
-MODEL_PATHS = {
-    "chemformer": os.path.join(os.path.dirname(__file__), "chemformer.ckpt"),
-    "chemformer_large": os.path.join(os.path.dirname(__file__), "chemformer_large.ckpt"),
-}
+
+def checkpoint_path(model_name: str):
+    return os.path.join(os.path.dirname(__file__), f"{model_name}.ckpt")
+
 CHECKPOINT_DOWNLOAD_LINKS = {
     "chemformer": "https://az.app.box.com/s/7eci3nd9vy0xplqniitpk02rbg9q2zcq/folder/144881804954",
     "chemformer_large": "https://az.app.box.com/s/7eci3nd9vy0xplqniitpk02rbg9q2zcq/folder/144881806154",
@@ -30,10 +30,10 @@ class State:
 def setup(model_name: str, device: str, batch_size: int) -> None:
     tokenizer = ChemformerTokenizer(filename=VOCAB_PATH)
     batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=-1)
-    if not os.path.isfile(MODEL_PATHS[model_name]):
-        raise RuntimeError(f"Download checkpoint '{CHECKPOINT_DOWNLOAD_LINKS[model_name]}' and save it as '{MODEL_PATHS[model_name]}'.")
+    if not os.path.isfile(checkpoint_path(model_name)):
+        raise RuntimeError(f"Download checkpoint '{CHECKPOINT_DOWNLOAD_LINKS[model_name]}' and save it as '{checkpoint_path(model_name)}'.")
     
-    model = BARTModel.load_from_checkpoint(MODEL_PATHS[model_name], decode_sampler=None, vocabulary_size=len(tokenizer.vocabulary))
+    model = BARTModel.load_from_checkpoint(checkpoint_path(model_name), decode_sampler=None, vocabulary_size=len(tokenizer.vocabulary))
     model = model.to(device)
     model.eval()
     State.batch_encoder = batch_encoder
