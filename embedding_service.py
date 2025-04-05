@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import os
 from tqdm import tqdm
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 VOCAB_PATH = os.path.join(os.path.dirname(__file__), "bart_vocab.json")
 
@@ -27,10 +27,7 @@ class State:
 
     initialized: bool = False
 
-def setup(model_name: str, device: str, batch_size: int) -> None:
-    if device == "mps":
-        raise ValueError(f"Device '{device}' is not supported.")
-
+def setup(model_name: str, device: Literal["cpu", "cuda"], batch_size: int) -> None:
     tokenizer = ChemformerTokenizer(filename=VOCAB_PATH)
     batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=-1)
     if not os.path.isfile(checkpoint_path(model_name)):
