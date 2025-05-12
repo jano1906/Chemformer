@@ -29,7 +29,7 @@ class State:
 
 def setup(model_name: str, device: Literal["cpu", "cuda"], batch_size: int):
     tokenizer = ChemformerTokenizer(filename=VOCAB_PATH)
-    batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=-1)
+    batch_encoder = BatchEncoder(tokenizer=tokenizer, masker=None, max_seq_len=512)
     if not os.path.isfile(checkpoint_path(model_name)):
         raise RuntimeError(f"Download checkpoint '{CHECKPOINT_DOWNLOAD_LINKS[model_name]}' and save it as '{checkpoint_path(model_name)}'.")
     
