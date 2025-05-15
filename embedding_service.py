@@ -62,8 +62,8 @@ def encode(input_file: str, output_file: str):
             mul_mask = (~mask).unsqueeze(-1)
             counts = mul_mask.sum(dim=0)
             embeddings = (out * mul_mask).sum(dim=0) / counts
-            outputs.append(embeddings)
+            outputs.append(embeddings.cpu())
     outputs = torch.concat(outputs)
-    outputs = outputs.cpu().numpy()
+    outputs = outputs.numpy()
     with open(output_file, "wb") as f:
         np.save(f, outputs)
